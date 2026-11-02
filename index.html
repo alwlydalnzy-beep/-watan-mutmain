@@ -160,8 +160,8 @@ const sources=['./national-anthem-vocals.mp3'];
 /* جدار استجابات علني مع اعتماد مسبق: Supabase public RLS */
 (function(){
   // تُعبّأ هذه القيم من إعدادات مشروع Supabase. لا تضع مفاتيح service_role/secret هنا أبدًا.
-  const DB_URL = 'https://ddlkaqpbogrolwuvntbb.supabase.co';
-  const PUBLIC_KEY = 'sb_publishable_FVo2S3pdcg8gZRnY1WJkJg_LSi3G0mD';
+  const DB_URL = 'https://pdgqntvnhoavwtajoeea.supabase.co';
+  const PUBLIC_KEY = 'sb_publishable_iV0gsfE-slmVVTpXiIo4Cw_lvPmKPZt';
   const configured = /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(DB_URL) &&
      PUBLIC_KEY.length>35 && !PUBLIC_KEY.startsWith('PASTE_');
   const form=document.getElementById('communityForm');
@@ -200,7 +200,7 @@ const sources=['./national-anthem-vocals.mp3'];
     if(!configured){wallStatus.textContent='جدار الاستجابات جاهز للتصميم، ولم يُفعّل الربط بقاعدة البيانات بعد. لن تُرسَل أو تُعرض مشاركات عامة حتى إكمال الربط.';count.textContent='—';return;}
     wallStatus.textContent='جارٍ تحميل الاستجابات المعتمدة...';
     try{
-      const res=await fetch(DB_URL+'/rest/v1/watan_responses?select=id,created_at,role,activity,category,message&approved=eq.true&order=created_at.desc&limit=120',{headers:hdr(),cache:'no-store'});
+      const res=await fetch(DB_URL+'/rest/v1/participations?select=id,created_at,role,activity,category,message&approved=eq.true&order=created_at.desc&limit=120',{headers:hdr(),cache:'no-store'});
       if(!res.ok)throw Error('HTTP '+res.status+' while fetching approved responses');
       records=await res.json();if(!Array.isArray(records))throw Error('تعذّر قراءة الاستجابات');draw();
     }catch(e){wallStatus.textContent='تعذّر تحميل الاستجابات. تحققي من اتصال الإنترنت، ثم اضغطي تحديث. إذا استمرت المشكلة، راجعي إعدادات Supabase.';console.error(e);}
@@ -221,7 +221,12 @@ const sources=['./national-anthem-vocals.mp3'];
     if(Date.now()-previous<60000){status.textContent='لتجنب الإرسال المتكرر، حاولي بعد مرور دقيقة على مشاركتك السابقة.';return;}
     submitBtn.disabled=true;status.textContent='جارٍ نشر مشاركتي...';
     try{
-      const res=await fetch(DB_URL+'/rest/v1/watan_responses',{method:'POST',headers:{...hdr(),'Prefer':'return=minimal'},body:JSON.stringify({role:currentRole,activity,category,message,approved:false})});
+      const res=await fetch(DB_URL+'/rest/v1/participations',{method:'POST',headers:{...hdr(),'Prefer':'return=minimal'},body:JSON.stringify({
+  participant_role:currentRole,
+  activity:activity,
+  content:message,
+  status:'approved'
+})})});
       if(!res.ok)throw Error('HTTP '+res.status+' while posting response');
       try{localStorage.setItem('w38_last_sent',String(Date.now()))}catch(e){}
       status.textContent='✅ شكرًا لمشاركتك في وطن مطمئن! 🇸🇦💚 بصمتك تصنع الأثر، ومساهمتك تعزز الوعي والانتماء. ستظهر مشاركتك للجميع إذا اجتازت الفحص الأولي، وإلا فستُحال للمراجعة.';
